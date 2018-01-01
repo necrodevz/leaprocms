@@ -1,55 +1,17 @@
-FROM debian:jessie
-MAINTAINER Odoo S.A. <info@odoo.com>
+FROM odoo:10.0
 
-# Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
-RUN set -x; \
-        apt-get update \
-        && apt-get install -y --no-install-recommends \
-            ca-certificates \
-            curl \
-            node-less \
-            python-gevent \
-            python-pip \
-            python-renderpm \
-            python-support \
-            python-watchdog \
-        && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
-        && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
-        && dpkg --force-depends -i wkhtmltox.deb \
-        && apt-get -y install -f --no-install-recommends \
-        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
-        && pip install psycogreen==1.0
+LABEL author=Devroy Blake <dkb@dkblake.com>
 
-# Install Odoo
-ENV ODOO_VERSION 10.0
-ENV ODOO_RELEASE 20171030
-RUN set -x; \
-        curl -o odoo.deb -SL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-        && echo 'b250b2bbcda6056146d323eb0d7a1e609a09d0ec odoo.deb' | sha1sum -c - \
-        && dpkg --force-depends -i odoo.deb \
-        && apt-get update \
-        && apt-get -y install -f --no-install-recommends \
-        && rm -rf /var/lib/apt/lists/* odoo.deb
+COPY ./config /etc/odoo
 
-# Copy entrypoint script and Odoo configuration file
-COPY ./entrypoint.sh /
-COPY ./odoo.conf /etc/odoo/
-RUN chown odoo /etc/odoo/odoo.conf
+COPY ./addons /mnt/extra-addons
 
-# Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN mkdir -p /mnt/extra-addons \
-        && chown -R odoo /mnt/extra-addons
-VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+#RUN mkdir -p /mnt/project-addons 
 
-# Expose Odoo services
-EXPOSE 8069 8071
+#VOLUME [ "/mnt/project-addons" ]
 
-# Set the default config file
-ENV ODOO_RC /etc/odoo/odoo.conf
+#WORKDIR /mnt/project-addons
 
-# Set default user when running the container
-USER odoo
+#RUN git clone https://github.com/necrodevz/project.git .
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["odoo"]
+CMD [ "odoo" ]

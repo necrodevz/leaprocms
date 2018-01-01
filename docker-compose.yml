@@ -1,0 +1,25 @@
+version: '2'
+services:
+  web:
+    image: necrodevz/leaprocms:latest
+    depends_on:
+      - db
+    ports:
+      - "443:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - ./project-addons:/mnt/project-addons
+  db:
+    image: postgres:9.4
+    environment:
+      - POSTGRES_PASSWORD=odoo0
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+volumes:
+  odoo-web-data:
+  odoo-file-data:
+  odoo-db-data:
