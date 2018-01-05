@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Leapro : CRM UI",
+    'name': "Leapro : CRM Addons - Copy",
 
     'summary': """Adds Leapro CRM UI""",
 
@@ -28,6 +28,6 @@
     ],
     # only loaded in demonstration mode
     'demo': [
-        'demo.xml',
+        'data/demo.xml',
     ],
 }
